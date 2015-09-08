@@ -6,17 +6,22 @@ dashboardPage(#skin = "black",
               dashboardHeader(title = "FAO Data Dashboard"),
               dashboardSidebar(
                 sidebarMenu(
-                  uiOutput("country"),
-                  menuItem("Population", tabName = "population", icon = icon("group")),
-                  menuItem("Economy", tabName = "economy", icon = icon("money")),
-                  menuItem("Dietary energy supply", tabName = "des", icon = icon("cutlery")),
-#                   uiOutput("group"),
-#                   uiOutput("domain"),
-#                   uiOutput("indOrAgg"),
-#                   uiOutput("item"),
-#                   uiOutput("time_frame"),
-#                   uiOutput("element"),
-#                   uiOutput("yearRange"),
+#                  menuItem("", tabName = "production_and_trade"),
+                  # menuItem("Trade", tabName = "economy", icon = icon("money")),
+                  radioButtons("trade_production",label = "Pick one",choices = c("Production","Trade"), inline = TRUE),
+#                  uiOutput("country"),
+#                  uiOutput("group"),
+#                  uiOutput("domain"),
+                  #uiOutput("indOrAgg"),
+                  uiOutput("item"),
+#                  uiOutput("time_frame"),
+                  # uiOutput("element"),
+                  uiOutput("yearRange"),
+                  
+                  #menuItem("Nutrition", tabName = "des", icon = icon("cutlery")),
+
+#                  
+
                   menuItem("Source code", icon = icon("github"),
                            href = "https://github.com/unfaostatistics/faodash")
                 )
@@ -24,51 +29,22 @@ dashboardPage(#skin = "black",
 
               ),
               dashboardBody(
-                tabItems(
-
-                  # First tab content
-                  tabItem(tabName = "population",
-                    h2("Population"),
-
+                   tabItem(tabName = "production_and_trade",
+                    tags$h2(uiOutput("page_title")),
+                    tags$hr(),
+                    
                     fluidRow(
-                      infoBoxOutput("populationBox"),
-                      valueBoxOutput("populationGrowth"),
-                      valueBoxOutput("lifeExpectancy")
+                      infoBoxOutput("box_1_1",  width=6),
+                      valueBoxOutput("box_1_2",  width=6)
                             ),
-                    h3("Rank"),
+                    tags$h3(uiOutput("sub_title1")),
                     fluidRow(
-                      box(plotOutput("populationBox_rank"),  width=4),
-                      box(plotOutput("populationGrowth_rank"),  width=4),
-                      box(plotOutput("lifeExpectancy_rank"),  width=4)
-                                    )
-                  ),
-                  # Second tab content
-                  tabItem(tabName = "economy",
-                  h2("Economy"),
-                  fluidRow(
-                    infoBoxOutput("gdpPerCapita"),
-                    valueBoxOutput("valueAddedWorker"),
-                    valueBoxOutput("valueAddedAgriculture")
-                          ),
-                  h3("Rank"),
-                  fluidRow(
-                    box(plotOutput("gdpPerCapita_rank"),  width=4),
-                    box(plotOutput("valueAddedWorker_rank"),  width=4),
-                    box(plotOutput("valueAddedAgriculture_rank"),  width=4)
-                                  )
-
-                  ),
-                  # Second tab content
-                  tabItem(tabName = "des",
-                  h2("Dietary energy supply"),
-                  fluidRow(
-                    infoBoxOutput("dietaryEnergySupply"),
-                    valueBoxOutput("undernourishment"),
-                    valueBoxOutput("rootsAndTubers")
-                          )
-
+                      box(plotOutput("box_2_1"),  width=6),
+                      box(plotOutput("box_2_2"),  width=6)
+                    ),
+                     tags$h3(uiOutput("sub_title2")),
+                    box(plotOutput("box_3_1"),  width=12)
+                    # dataTableOutput("mytable")
                   )
-
-                )
               )
 )

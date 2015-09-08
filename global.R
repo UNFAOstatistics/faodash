@@ -79,20 +79,20 @@ load("./data/fsi.RData")
 # # data3$Region <- as.factor(data3$Region)
 # # h(data3)
 #
-# library(FAOSTAT)
+library(FAOSTAT)
 #save(FAOmetaTable, file="FAOmetaTable.RData")
-load("FAOmetaTable.RData")
+load("./data/FAOmetaTable.RData")
 #save(FAOcountryProfile, file="FAOcountryProfile.RData")
-load("FAOcountryProfile.RData")
+load("./data/FAOcountryProfile.RData")
 #
 #
 # str(FAOmetaTable)
 #
-# groupTable <- FAOmetaTable[[1]]
-# domainTable <- FAOmetaTable[[2]]
-# itemTable <- FAOmetaTable[[3]]
-# itemAggTable <- FAOmetaTable[[4]]
-# elementTable <- FAOmetaTable[[5]]
+groupTable <- FAOmetaTable[[1]]
+domainTable <- FAOmetaTable[[2]]
+itemTable <- FAOmetaTable[[3]]
+itemAggTable <- FAOmetaTable[[4]]
+elementTable <- FAOmetaTable[[5]]
 #
 # ### getFAO
 #
