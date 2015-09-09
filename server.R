@@ -161,6 +161,28 @@ shinyServer(function(input, output, session) {
     
   })
   
+  trade_value <- reactive({
+    
+    # dc <- domainTable[domainTable$domainName == input$domain_name,]$domainCode
+    #dc <- domainTable[domainTable$domainName == "Crops",]$domainCode
+    #dc <- domainTable[domainTable$domainName == "Trade",]$domainCode
+    
+    dc <- "TP"
+    ec <- 5622
+    #ic <- itemTable[itemTable$itemName == input$item_name & itemTable$domainCode == dc,]$itemCode
+    ic <- 515
+    
+    
+    dat <- getFAOtoSYB(domainCode = dc,
+                       elementCode = ec,
+                       itemCode = ic)
+    dat1 <- dat[["entity"]]
+    #dat1 <- dat[["aggregates"]]
+    names(dat1) <- c("FAOST_CODE","Year","Value")
+    left_join(dat1,FAOcountryProfile[c("FAOST_CODE","FAO_TABLE_NAME")])
+    
+  })
+  
 
   output$yearRange <- renderUI({
 
@@ -173,8 +195,8 @@ shinyServer(function(input, output, session) {
 
 
   output$mytable = renderDataTable({
-    fao_data()
-    
+    #fao_data()
+    trade_value()
   },options = list(pageLength = 100))
 
 # ------------------------------------------------------------
@@ -263,13 +285,29 @@ output$box_2_1 <- renderPlot({
     p <- p + theme(title = element_text(size=18, family = "Ubuntu", color="dim grey",hjust = 0))
     p <- p + theme(axis.title = element_blank())
     p <- p + theme(axis.ticks = element_blank())
-    p
     
-  } else {
+  } 
+  if (input$trade_production %in% "Trade"){
     
-    plot(cars)
+    dd <- trade_value()
+
+    top10 <- dd %>% filter(Year == input$year_range[2], FAOST_CODE < 5000) %>% arrange(-Value) %>% slice(1:10)
+
+    p <- ggplot(top10, aes(x=reorder(FAOST_CODE,Value),y=Value,fill=factor(FAOST_CODE)))
+    p <- p + geom_bar(stat="identity",position="dodge")
+    p <- p + labs(title = "Export Value")
+    p <- p + theme_minimal()
+    p <- p + coord_flip()
+    p <- p + theme(legend.position="none")
+    p <- p + theme(axis.text.x = element_blank())
+    p <- p + theme(axis.text.y = element_text(size=16, family = "Ubuntu", color="dim grey"))
+    p <- p + theme(title = element_text(size=18, family = "Ubuntu", color="dim grey",hjust = 0))
+    p <- p + theme(axis.title = element_blank())
+    p <- p + theme(axis.ticks = element_blank())
+    
     
   }
+  p
   })
 
 output$box_2_2 <- renderPlot({
@@ -293,11 +331,28 @@ output$box_2_2 <- renderPlot({
     p <- p + theme(axis.ticks = element_blank())
     p
     
-  } else {
+  } 
+  if (input$trade_production %in% "Trade"){
     
-    plot(cars)
+    dd <- trade_value()
+    
+    top10 <- dd %>% filter(Year == input$year_range[2], FAOST_CODE < 5000) %>% arrange(-Value) %>% slice(1:10)
+    
+    p <- ggplot(top10, aes(x=reorder(FAOST_CODE,Value),y=Value,fill=factor(FAOST_CODE)))
+    p <- p + geom_bar(stat="identity",position="dodge")
+    p <- p + labs(title = "Import value")
+    p <- p + theme_minimal()
+    p <- p + coord_flip()
+    p <- p + theme(legend.position="none")
+    p <- p + theme(axis.text.x = element_blank())
+    p <- p + theme(axis.text.y = element_text(size=16, family = "Ubuntu", color="dim grey"))
+    p <- p + theme(title = element_text(size=18, family = "Ubuntu", color="dim grey",hjust = 0))
+    p <- p + theme(axis.title = element_blank())
+    p <- p + theme(axis.ticks = element_blank())
+    
     
   }
+  p
 })
 
 output$sub_title2 <- renderUI({
@@ -333,13 +388,34 @@ output$box_3_1 <- renderPlot({
     p <- p + theme(axis.title = element_blank())
     p <- p + theme(axis.ticks = element_blank())
     p <- p + coord_cartesian(xlim=c(input$year_range[1],input$year_range[2]+((input$year_range[2]-input$year_range[1])*.2)))
-    p
     
-  } else {
+  } 
+  if (input$trade_production %in% "Trade"){
     
-    plot(cars)
+    dd <- trade_value()
+    
+    top10 <- dd %>% filter(Year == input$year_range[2], FAOST_CODE < 5000) %>% arrange(-Value) %>% slice(1:10)
+    dat_plot <- dd[dd$FAOST_CODE %in% top10$FAOST_CODE,]
+    
+    p <- ggplot(dat_plot, aes(x=Year,y=Value,color=factor(FAO_TABLE_NAME)))
+    p <- p + geom_text(data=dat_plot[dat_plot$Year == input$year_range[2],], 
+                       aes(x=Year,y=Value,label=FAO_TABLE_NAME,color=FAO_TABLE_NAME), 
+                       size=4, hjust=-0.2, family="Ubuntu")
+    #p <- p + geom_bar(stat="identity",position="dodge")
+    p <- p + geom_point() + geom_line()
+    p <- p + labs(title = "Import value")
+    p <- p + theme_minimal()
+    #p <- p + coord_flip()
+    p <- p + theme(legend.position="none")
+    p <- p + theme(axis.text.y = element_blank())
+    #p <- p + theme(axis.text.y = element_text(size=16, family = "Ubuntu", color="dim grey" ))
+    p <- p + theme(title = element_text(size=18, family = "Ubuntu", color="dim grey",hjust = .5))
+    p <- p + theme(axis.title = element_blank())
+    p <- p + theme(axis.ticks = element_blank())
+    p <- p + coord_cartesian(xlim=c(input$year_range[1],input$year_range[2]+((input$year_range[2]-input$year_range[1])*.2)))
     
   }
+  p
 })
 
   

@@ -2,7 +2,7 @@ library(shinydashboard)
 library(shiny)
 library(DT)
 
-dashboardPage(#skin = "black",
+dashboardPage(skin = "black",
               dashboardHeader(title = "FAO Data Dashboard"),
               dashboardSidebar(
                 sidebarMenu(
@@ -10,13 +10,14 @@ dashboardPage(#skin = "black",
                   # menuItem("Trade", tabName = "economy", icon = icon("money")),
                   radioButtons("trade_production",label = "Pick one",choices = c("Production","Trade"), inline = TRUE),
 #                  uiOutput("country"),
-#                  uiOutput("group"),
-#                  uiOutput("domain"),
+                 # uiOutput("group"),
+                 # uiOutput("domain"),
                   #uiOutput("indOrAgg"),
-                  uiOutput("item"),
+                   uiOutput("item"),
 #                  uiOutput("time_frame"),
                   # uiOutput("element"),
-                  uiOutput("yearRange"),
+                  # uiOutput("yearRange"),
+                  sliderInput("year_range", "Select year range", min = 2000, max = 2010, value = c(2000,2010), step = 1,animate = TRUE),
                   
                   #menuItem("Nutrition", tabName = "des", icon = icon("cutlery")),
 
@@ -30,6 +31,7 @@ dashboardPage(#skin = "black",
               ),
               dashboardBody(
                    tabItem(tabName = "production_and_trade",
+                    #uiOutput("item"),
                     tags$h2(uiOutput("page_title")),
                     tags$hr(),
                     
@@ -43,8 +45,8 @@ dashboardPage(#skin = "black",
                       box(plotOutput("box_2_2"),  width=6)
                     ),
                      tags$h3(uiOutput("sub_title2")),
-                    box(plotOutput("box_3_1"),  width=12)
-                    # dataTableOutput("mytable")
+                    box(plotOutput("box_3_1"),  width=12)#,
+                    #dataTableOutput("mytable")
                   )
               )
 )

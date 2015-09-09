@@ -1,9 +1,9 @@
-load("./data/SYB.RData")
-syb.df <- SYB.df
+# load("./data/SYB.RData")
+# syb.df <- SYB.df
 
 # fsi <- read.csv("~/btsync/faosync/pocketbooks/GSPB15/database/Data/Raw/FSI2015_DisseminationDataset.csv",stringsAsFactors=FALSE)
 # save(fsi, file="./data/fsi.RData")
-load("./data/fsi.RData")
+# load("./data/fsi.RData")
 
 #
 #
