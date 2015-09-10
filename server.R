@@ -138,7 +138,7 @@ shinyServer(function(input, output, session) {
   
   
   
-  output$box_1_1 <- renderInfoBox({
+  output$box_1_1 <- renderValueBox({
     
     
     if (input$trade_production %in% "Production"){
@@ -148,30 +148,41 @@ shinyServer(function(input, output, session) {
       value <- round(dd[dd$Year == input$year_year & dd$FAOST_CODE == 5000 & dd$var %in% "Production",]$value / 1000000,1)
       #value <- round(dd[dd$Year == 2000 & dd$FAOST_CODE == 5000 & dd$var %in% "Production",]$value / 1000000,1)
       
-      infoBox(title=paste("Production quantity in",input$year_year),value=paste0(value," million tonnes"),icon = icon("th"),color = "green",width=6)
+      valueBox(subtitle=paste("Production quantity in",input$year_year),
+              value=paste0(value," million tonnes"),
+              icon = icon("th"),
+              color = "green")
       
       
     } else {
       
       dd <- data_trade()
       value <- round(dd[dd$Year == input$year_year & dd$FAOST_CODE == 5000 & dd$var %in% "Export Value",]$value / 1000000,1)
-      infoBox(title="Total export value",value=paste(value,"million US$"),icon = icon("fa fa-plane"),color = "black")
+      valueBox(subtitle="Total export value",
+              value=paste(value,"million US$"),
+              icon = icon("fa fa-plane"),
+              color = "red")
     }
   })
   
-  output$box_1_2 <- renderInfoBox({
+  output$box_1_2 <- renderValueBox({
     
     # Define the box
     if (input$trade_production %in% "Production"){
       
       dd <- data_production()
       value <- round(dd[dd$Year == input$year_year & dd$FAOST_CODE == 5000 & dd$var %in% "Area harvested",]$value / 1000000,1)
-      infoBox(title=paste("Area harvested in ",input$year_year),value=paste0(value,"million hectares"),icon = icon("globe"),color = "green",width=6)
+      valueBox(subtitle=paste("Area harvested in ",input$year_year),
+              value=paste0(value,"million hectares"),
+              icon = icon("globe"),
+              color = "green")
     } else {
 
       dd <- data_trade()
       value <- round(dd[dd$Year == input$year_year & dd$FAOST_CODE == 5000 & dd$var %in% "Import Value",]$value / 1000000,1)
-      infoBox(title="Total import value",value=paste(value,"million US$"),icon = icon("fa fa-plane fa-rotate-180"),color = "black")
+      valueBox(subtitle="Total import value",value=paste(value,"million US$"),
+              icon = icon("fa fa-plane fa-rotate-180"),
+              color = "red")
     }
     
   })
@@ -187,12 +198,18 @@ shinyServer(function(input, output, session) {
       value <- round(dd[dd$Year == input$year_year & dd$FAOST_CODE == 5000 & dd$var %in% "Yield",]$value,1)
       #value <- round(dd[dd$Year == 2000 & dd$FAOST_CODE == 5000 & dd$var %in% "Production",]$value / 1000000,1)
       
-      infoBox(title=paste("Yield in",input$year_year),value=paste0(value," unit here"),icon = icon("signal"),color = "aqua",width=6)
+      infoBox(title=paste("Yield in",input$year_year),
+              value=paste0(value," unit here"),
+              icon = icon("signal"),
+              color = "aqua")
     } else {
       
       dd <- data_trade()
       value <- round(dd[dd$Year == input$year_year & dd$FAOST_CODE == 5000 & dd$var %in% "Export Quantity",]$value / 1000000,1)
-      infoBox(title="Total export quantity",value=paste(value,"million tonnes"),icon = icon("fa fa-plane"),color = "yellow")
+      infoBox(title="Total export quantity",
+              value=paste(value,"million tonnes"),
+              icon = icon("fa fa-plane"),
+              color = "yellow")
     }
   })
   
@@ -205,14 +222,16 @@ shinyServer(function(input, output, session) {
       dd <- data_production()
       #dd <- dat3
       value <- round(dd[dd$Year == input$year_year & dd$FAOST_CODE == 5000 & dd$var %in% "Seed",]$value,1)
-      #value <- round(dd[dd$Year == 2000 & dd$FAOST_CODE == 5000 & dd$var %in% "Production",]$value / 1000000,1)
       
       infoBox(title=paste("Seed in",input$year_year),value=paste0(value," unit here"),icon = icon("cubes"),color = "aqua",width=6)
     } else {
       
       dd <- data_trade()
       value <- round(dd[dd$Year == input$year_year & dd$FAOST_CODE == 5000 & dd$var %in% "Import Quantity",]$value / 1000000,1)
-      infoBox(title="Total import quantity",value=paste(value,"million tonnes"),icon = icon("fa fa-plane fa-rotate-180"),color = "yellow")
+      infoBox(title="Total import quantity",
+              value=paste(value,"million tonnes"),
+              icon = icon("fa fa-plane fa-rotate-180"),
+              color = "yellow")
     }
   })
   

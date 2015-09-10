@@ -58,12 +58,12 @@ dashboardPage(skin = "black",
                      tags$hr(),
 
                      fluidRow(
-                       infoBoxOutput("box_1_1",  width=6),
+                       valueBoxOutput("box_1_1",  width=6),
                        valueBoxOutput("box_1_2",  width=6)
                              ),
                   fluidRow(
                     infoBoxOutput("box_1_3",  width=6),
-                    valueBoxOutput("box_1_4",  width=6)
+                    infoBoxOutput("box_1_4",  width=6)
                   ),
                     tags$h3(uiOutput("sub_title1")),
                      fluidRow(
