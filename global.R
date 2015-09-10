@@ -1,3 +1,6 @@
+#file.copy("~/Desktop/faodash_data/data_processed/bulk.Rdata", "./data", overwrite = TRUE)
+load("./data/bulk.Rdata")
+
 # load("./data/SYB.RData")
 # syb.df <- SYB.df
 
@@ -79,20 +82,20 @@
 # # data3$Region <- as.factor(data3$Region)
 # # h(data3)
 #
-library(FAOSTAT)
-#save(FAOmetaTable, file="FAOmetaTable.RData")
-load("./data/FAOmetaTable.RData")
-#save(FAOcountryProfile, file="FAOcountryProfile.RData")
-load("./data/FAOcountryProfile.RData")
-#
-#
-# str(FAOmetaTable)
-#
-groupTable <- FAOmetaTable[[1]]
-domainTable <- FAOmetaTable[[2]]
-itemTable <- FAOmetaTable[[3]]
-itemAggTable <- FAOmetaTable[[4]]
-elementTable <- FAOmetaTable[[5]]
+# library(FAOSTAT)
+# #save(FAOmetaTable, file="FAOmetaTable.RData")
+# load("./data/FAOmetaTable.RData")
+# #save(FAOcountryProfile, file="FAOcountryProfile.RData")
+# load("./data/FAOcountryProfile.RData")
+# #
+# #
+# # str(FAOmetaTable)
+# #
+# groupTable <- FAOmetaTable[[1]]
+# domainTable <- FAOmetaTable[[2]]
+# itemTable <- FAOmetaTable[[3]]
+# itemAggTable <- FAOmetaTable[[4]]
+# elementTable <- FAOmetaTable[[5]]
 #
 # ### getFAO
 #

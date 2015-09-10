@@ -1,5 +1,7 @@
 library(dplyr)
 library(ggplot2)
+library(stringr)
+library(tidyr)
 
 shinyServer(function(input, output, session) {
 
@@ -16,177 +18,78 @@ shinyServer(function(input, output, session) {
     list(opts)
   })
   
-
-  
-  
-
-  output$domain <- renderUI({
-
-    gc <- groupTable[groupTable$groupName == input$trade_production,]$groupCode
+  output$indicator <- renderUI({
     
-    subdomainTable <- domainTable[domainTable$groupCode == gc,]
-    domainNames <- subdomainTable[["domainName"]]
-    opts <- selectInput("domain_name", "Which Domain are you looking for:",
-                        choices = domainNames, selected=domainNames[1])
+    if (input$trade_production %in% "Production"){
+      
+      fao_meta2 <- fao_meta %>% filter(!(Element %in% c("Export Quantity","Export Value",
+                                                        "Import Quantity","Import Value")))
+      items <- unique(fao_meta2$Item)
+      items <- items[c(-125)]
+    } 
+    if (input$trade_production %in% "Trade"){
+      fao_meta2 <- fao_meta %>% filter(Element %in% c("Export Quantity","Export Value",
+                                                      "Import Quantity","Import Value"))
+      items <- unique(fao_meta2$Item)
+      items <- items[c(-76,-287,-390)]
+      }
+    
+    opts <- selectInput("indicator_name", "Pick an item:",choices = items)
     list(opts)
   })
 
-  output$indOrAgg <- renderUI({
-    ind_or_agg <- data.frame(name = c("(0) Individual item (e.g. Apples, Wheat)",
-                                      "(1) Aggregated item (e.g. Total cereals, Total meat"),
-                             code = c(0,1),
-                             stringsAsFactors = FALSE
-    )
-    values <- ind_or_agg$name
-    opts <- selectInput("ind_or_agg", "Are you looking for individual item or aggregated item:",
-                        choices = values, selected=values[1])
-    list(opts)
-  })
+#item_to_pick <- "Bananas"
 
-  output$item <- renderUI({
-
-    #dc <- domainTable[domainTable$domainName == input$domain_name,]$domainCode
-    dc <- domainTable[domainTable$domainName == "Crops",]$domainCode
-    #    agg <- ind_or_agg[ind_or_agg$name == input$ind_or_agg,]$code
-    #     x <- values[2]
-    #     agg <- ind_or_agg[ind_or_agg$name == x,]$code
-    #if (agg == 1) {
-    #  subitemTable = itemAggTable[itemAggTable$domainCode == dc,]
-    #} else {
-    subitemTable = itemTable[itemTable$domainCode == dc,]
-    #}
-    values <- subitemTable$itemName
-    opts <- selectInput("item_name", "Which Item are you looking for?",
-                        choices = values, selected=values[1])
-    list(opts)
-  })
-
-  output$element <- renderUI({
-
-
-    #dc <- domainTable[domainTable$domainName == input$domain_name,]$domainCode
-    dc <- domainTable[domainTable$domainName == "Crops",]$domainCode
-    subelementTable = elementTable[elementTable$domainCode == dc,]
-    values <- as.character(subelementTable$elementName)
-    opts <- selectInput("element_name", "Which Element are you looking for?",
-                        choices = values, selected=values[1])
-    list(opts)
-  })
   
-  fao_data <- reactive({
+  data_trade <- reactive({
     
-    # dc <- domainTable[domainTable$domainName == input$domain_name,]$domainCode
-    dc <- domainTable[domainTable$domainName == "Crops",]$domainCode
-    #ec <- elementTable[elementTable$elementName == input$element_name & elementTable$domainCode == dc,]$elementCode
-    ec <- 5510
-    ic <- itemTable[itemTable$itemName == input$item_name & itemTable$domainCode == dc,]$itemCode
+    fao_meta3 <- fao_meta %>% filter(Element %in% c("Export Quantity","Export Value","Import Quantity","Import Value"), 
+                        Item %in% input$indicator_name)
+    file_name <- str_replace_all(unique(fao_meta3$file_name), ".RData", "")
+    ids <- unique(fao_meta3$id)
+    dat <- get(file_name)
+    dat2 <- dat[c("CountryCode","Year",ids)]
     
-    dat <- getFAOtoSYB(domainCode = dc,
-                       elementCode = ec,
-                       itemCode = ic)
-    dat[["entity"]]
+    dat3 <- gather(dat2, var, value, 3:ncol(dat2))
+    dat3$var <- as.character(dat3$var)
+    vars <- as.character(unique(dat3$var))
+    for (i in vars){
+      dat3$var[dat3$var %in% i] <- fao_meta[fao_meta$id %in% i,]$Element
+    }
+    names(dat3)[names(dat3)=="CountryCode"] <- "FAOST_CODE"
+    left_join(dat3,FAOcountryProfile[c("FAOST_CODE","FAO_TABLE_NAME")])
     
   })
   
-
-  fao_data_quantity <- reactive({
-
-    # dc <- domainTable[domainTable$domainName == input$domain_name,]$domainCode
-    dc <- domainTable[domainTable$domainName == "Crops",]$domainCode
+  data_production <- reactive({
     
-    ec <- 5510
-    ic <- itemTable[itemTable$itemName == input$item_name & itemTable$domainCode == dc,]$itemCode
-
-    dat <- getFAOtoSYB(domainCode = dc,
-                       elementCode = ec,
-                       itemCode = ic)
-    #dat[["entity"]]
-    dat1 <- dat[["aggregates"]]
-    names(dat1) <- c("FAOST_CODE","Year","Value")
-    dat1
-
-  })
-  
-  fao_data_quantity_entity <- reactive({
+    fao_meta3 <- fao_meta %>% filter(!(Element %in% c("Export Quantity","Export Value","Import Quantity","Import Value")), 
+                                     Item %in% input$indicator_name)
+    file_name <- str_replace_all(unique(fao_meta3$file_name), ".RData", "")
+    ids <- unique(fao_meta3$id)
+    dat <- get(file_name)
+    dat2 <- dat[c("CountryCode","Year",ids)]
     
-    # dc <- domainTable[domainTable$domainName == input$domain_name,]$domainCode
-    dc <- domainTable[domainTable$domainName == "Crops",]$domainCode
-    
-    ec <- 5510
-    ic <- itemTable[itemTable$itemName == input$item_name & itemTable$domainCode == dc,]$itemCode
-    
-    dat <- getFAOtoSYB(domainCode = dc,
-                       elementCode = ec,
-                       itemCode = ic)
-    dat1 <- dat[["entity"]]
-    #dat1 <- dat[["aggregates"]]
-    names(dat1) <- c("FAOST_CODE","Year","Value")
-    left_join(dat1,FAOcountryProfile[c("FAOST_CODE","FAO_TABLE_NAME")])
+    dat3 <- gather(dat2, var, value, 3:ncol(dat2))
+    dat3$var <- as.character(dat3$var)
+    vars <- as.character(unique(dat3$var))
+    for (i in vars){
+      dat3$var[dat3$var %in% i] <- fao_meta[fao_meta$id %in% i,]$Element
+    }
+    names(dat3)[names(dat3)=="CountryCode"] <- "FAOST_CODE"
+    left_join(dat3,FAOcountryProfile[c("FAOST_CODE","FAO_TABLE_NAME")])
     
   })
   
-  fao_data_area_harvested <- reactive({
-    
-    # dc <- domainTable[domainTable$domainName == input$domain_name,]$domainCode
-    dc <- domainTable[domainTable$domainName == "Crops",]$domainCode
-    
-    ec <- 5312
-    ic <- itemTable[itemTable$itemName == input$item_name & itemTable$domainCode == dc,]$itemCode
-    
-    dat <- getFAOtoSYB(domainCode = dc,
-                       elementCode = ec,
-                       itemCode = ic)
-    #dat[["entity"]]
-    dat1 <- dat[["aggregates"]]
-    names(dat1) <- c("FAOST_CODE","Year","Value")
-    dat1
-    
-  })
-  
-  fao_data_area_harvested_entity <- reactive({
-    
-    # dc <- domainTable[domainTable$domainName == input$domain_name,]$domainCode
-    dc <- domainTable[domainTable$domainName == "Crops",]$domainCode
-    
-    ec <- 5312
-    ic <- itemTable[itemTable$itemName == input$item_name & itemTable$domainCode == dc,]$itemCode
-    
-    dat <- getFAOtoSYB(domainCode = dc,
-                       elementCode = ec,
-                       itemCode = ic)
-    dat1 <- dat[["entity"]]
-    #dat1 <- dat[["aggregates"]]
-    names(dat1) <- c("FAOST_CODE","Year","Value")
-    left_join(dat1,FAOcountryProfile[c("FAOST_CODE","FAO_TABLE_NAME")])
-    
-  })
-  
-  trade_value <- reactive({
-    
-    # dc <- domainTable[domainTable$domainName == input$domain_name,]$domainCode
-    #dc <- domainTable[domainTable$domainName == "Crops",]$domainCode
-    #dc <- domainTable[domainTable$domainName == "Trade",]$domainCode
-    
-    dc <- "TP"
-    ec <- 5622
-    #ic <- itemTable[itemTable$itemName == input$item_name & itemTable$domainCode == dc,]$itemCode
-    ic <- 515
-    
-    
-    dat <- getFAOtoSYB(domainCode = dc,
-                       elementCode = ec,
-                       itemCode = ic)
-    dat1 <- dat[["entity"]]
-    #dat1 <- dat[["aggregates"]]
-    names(dat1) <- c("FAOST_CODE","Year","Value")
-    left_join(dat1,FAOcountryProfile[c("FAOST_CODE","FAO_TABLE_NAME")])
-    
-  })
   
 
   output$yearRange <- renderUI({
 
-    data <- fao_data()
+    
+    
+    if (input$trade_production %in% "Trade") data <- data_trade()
+    if (input$trade_production %in% "Production") data <- data_production()
+    
     maxim <- max(data$Year)
     minim <- min(data$Year)
     opts <- sliderInput("year_range", "Select year range", min = minim, max = maxim, value = c(minim,maxim), step = 1,animate = TRUE)
@@ -211,7 +114,7 @@ shinyServer(function(input, output, session) {
   output$page_title <- renderUI({
     
     #paste(input$trade_production,"of",input$item_name)
-    input$item_name
+    input$indicator_name
   })
   
   
